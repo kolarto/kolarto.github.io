@@ -1,0 +1,257 @@
+﻿<!doctype html>
+<html>
+
+<head>
+  <title>Network | Basic usage</title>
+    <meta charset="UTF-8" />
+  <script type="text/javascript" src="vis.min.js"></script>
+  <!--<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.19.1/vis.min.js"></script>-->
+  <script type="text/javascript" src="xml2json.js"></script>
+  <link href="vis.min.css" rel="stylesheet" type="text/css" />
+  <!--<link href="https://cdnjs.cloudflare.com/ajax/libs/vis/4.19.1/vis.min.css" rel="stylesheet" type="text/css" />-->
+  <link rel="stylesheet" type="text/css" href="styles.css">
+  <link href="Roboto-Medium.ttf" rel="stylesheet">
+  <!--<link href="https://fonts.googleapis.com/css?family=Roboto:400&amp" rel="stylesheet">-->
+</head>
+
+<body>
+    <div id="container" align="center">
+        <div id="text">
+            <p>
+                American flights
+            </p>
+            <p>
+                Controls: Click for slecting single node, ctrl+click for selecting multiple nodes.
+            </p>
+         </div>
+            <button id="big-button" class="btn red">
+                Show the map
+            </button>
+
+            <div id="mynetwork"></div>
+        <div id="error">
+            <div id="errorColorDiv">
+                <p>
+                    Bad file format!
+                </p>
+            </div>
+        </div>
+        <div id="ownNetwork">
+            <div id="colorDiv">
+                <p>
+                    Try your own network in graphml format (without background).
+                </p>
+                <p>
+                    Your file must be the same format as the original file - <a href="airlines.graphml">airlines.graphml</a>
+                </p>
+                <input id="input" type="file">
+            </div>
+        </div>
+
+<script type="text/javascript">
+    let myNetwork = document.getElementById("mynetwork");
+    let bigButton = document.getElementById("big-button");
+    let input = document.getElementById("input");
+    let ownNetwork = document.getElementById("ownNetwork");
+    let error = document.getElementById("error");
+
+    myNetwork.style.backgroundImage = "url('Mapa4.png')";
+    myNetwork.style.backgroundSize = "600px 300px";
+    bigButton.onclick = function () {
+        bigButton.style.display = "none";
+        myNetwork.style.opacity = "1.0";
+        ownNetwork.style.display = "block";
+    }
+    //-----------------------
+    var nodes = new vis.DataSet({ queue: true });
+
+    // create an array with edges
+    var edges = new vis.DataSet({ queue: true });
+    //-----------------------
+
+    function displayGraph(xmlData) {
+        error.style.display = "none";
+        let j;
+        let i;
+
+        const jsObj = X2J.parseXml(xmlData);
+
+        var graphOk = false;
+
+        if (jsObj != null) {
+            if (jsObj[0] != null) {
+                if (jsObj[0].graphml != null) {
+                    if (jsObj[0].graphml[0] != null) {
+                        if (jsObj[0].graphml[0].graph != null) {
+                            if (jsObj[0].graphml[0].graph[0] != null) {
+                                if (jsObj[0].graphml[0].graph[0].node != null) {
+                                    if (jsObj[0].graphml[0].graph[0].edge != null) {
+                                        graphOk = true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        if(!graphOk){
+            error.style.display = "block";
+            return;
+        }
+
+        nodes = new vis.DataSet({ queue: true });
+        edges = new vis.DataSet({ queue: true });
+
+        const jNodes = jsObj[0].graphml[0].graph[0].node;
+        const jEdges = jsObj[0].graphml[0].graph[0].edge;
+
+        let jCountEdgeAtNotes = [jNodes.length]; // pole do kterého uložím počet hran u každého vrcholu
+
+        for (i = 0; i < jNodes.length; i++, j++) {  // cykluk kde nastavuju počáteční hodnotu na 0 pro každý Node
+            jCountEdgeAtNotes[i] = 0;
+        }
+
+        for (i = 0; i < jEdges.length; i++) { // cyklus kde se pro každý node počítá kolik má hran
+            jCountEdgeAtNotes[jEdges[i].jAttr.source]++;
+            jCountEdgeAtNotes[jEdges[i].jAttr.target]++;
+        }
+
+        j = 0;
+        let jSize; // proměná která určuje jak bude node velký podle počtu hran
+
+        let nodeEdgeMap = [];
+
+        for (i = 0; i < jNodes.length; i++, j++) {
+
+            if(jCountEdgeAtNotes[i] < 10){              // určení velikosti podle počtu hran u každého uzlu
+                jSize = 4;
+            }
+            else if(jCountEdgeAtNotes[i] < 30){
+                jSize = 6;
+            }
+            else if(jCountEdgeAtNotes[i] < 50){
+                jSize = 8;
+            }
+            else{
+                jSize = 10;
+            }
+            nodes.add({ id: i, x: jNodes[i].data[0].jValue, y: jNodes[i].data[2].jValue, shape: 'dot', size: jSize, group: 0})
+            nodeEdgeMap[i]=[];
+        }
+        nodes.flush();
+
+        for (i = 0; i < jEdges.length; i++) {
+            edges.add({ id: i, from: jEdges[i].jAttr.source, to: jEdges[i].jAttr.target, hidden: true })
+            nodeEdgeMap[jEdges[i].jAttr.source].push(i);
+        }
+        edges.flush();
+
+        // create a network
+        const container = document.getElementById('mynetwork');
+
+        let selected = [];
+
+        const data = {
+            nodes: nodes,
+            edges: edges
+        };
+
+        const options = {
+            physics: {enabled: false},
+            edges: {arrows: {to: {enabled: true, scaleFactor: 0.2}}},
+            groups: {
+                0: {color: {background: '#e6e6e6', border: "black"}, borderWidth: 1},
+                1: {color: {background: 'red', border: "black"}, borderWidth: 1}
+            },
+            interaction: {dragNodes: false, dragView: false, zoomView: false}
+        };
+        network = new vis.Network(container, data, options);
+
+        let selEdges;
+
+        network.addEventListener("select", function( vizEvent ) {
+            if(!vizEvent.event.srcEvent.ctrlKey){    //kdyz jsem kliknul a drzel ctrl
+                //odznacit vsechny co byly do ted selectly
+                let updateNode = nodes.get(selected);
+                updateNode.forEach(function(entry) {
+                    entry.group = 0;
+                });
+                nodes.update(updateNode);
+                selEdges = [];
+                for (let i = 0; i < selected.length; i++) {
+                    selEdges = selEdges.concat(nodeEdgeMap[selected[i]]);
+                }
+                selEdges = edges.get(selEdges);
+                selEdges.forEach(function(entry) {
+                    entry.hidden = true;
+                });
+
+                edges.update(selEdges);
+                selected = [];
+            }
+
+            if (vizEvent.nodes.length > 0) {//vybran aspon jeden node
+                selected.push(vizEvent.nodes[0]);   //pridej jeho id do pole selected
+                let clickNode = nodes.get(vizEvent.nodes[0]);   //najdu node
+                clickNode.group = 1;    //zemnim grupu na 1
+                nodes.update(clickNode);    //updatnu ho zpatky
+                selEdges = nodeEdgeMap[vizEvent.nodes[0]];  //najdu vsechny id edgu co vedou z nej ve vytvorene mape
+                selEdges = edges.get(selEdges); //najdu k IDckum edge
+                selEdges.forEach(function (entry) {
+                    entry.hidden = false;   //pro kazdej nastavim, aby nebyl zkryty
+                });
+
+                edges.update(selEdges); //updanu je zpatky
+            }
+
+            nodes.flush();
+            edges.flush();
+            //console.log("Selected length: "+selected.length);
+        }, false);
+
+    };
+    const xhttp = new XMLHttpRequest();
+    xhttp.open("GET", "airlines.graphml", true);
+
+    xhttp.onload = function (e) {
+        displayGraph(xhttp.responseText);
+    };
+    xhttp.send();
+
+
+    input.onchange = function (e) {
+        var file = input.files[0];
+        if (file) {
+            getAsText(file);
+        }
+    }
+
+    function getAsText(readFile) {
+        var reader = new FileReader();
+        // Read file into memory as UTF-16      
+        reader.readAsText(readFile, "UTF-8");
+
+        // Handle progress, success, and errors
+        reader.onload = loaded;
+        reader.onerror = errorHandler;
+    }
+
+    function loaded(evt) {
+        // Obtain the read file data    
+        var fileString = evt.target.result;
+        myNetwork.style.backgroundImage = "";
+        displayGraph(fileString);
+    }
+
+    function errorHandler(evt) {
+        if (evt.target.error.name == "NotReadableError") {
+            // The file could not be read
+        }
+    }
+</script>
+
+
+</body>
+</html>

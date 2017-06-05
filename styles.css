@@ -1,0 +1,96 @@
+html, body {
+margin:0;
+padding:0;
+font-family: 'Roboto', sans-serif;
+}
+
+p {
+    font-size: 140%;
+}
+
+p:nth-of-type(1) {
+    font-weight: bold;
+}
+
+#text{
+    background-color:aquamarine;
+    margin-top: 0px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+#colorDiv{
+    display: block;
+    background-color:#88c9fc;
+    padding-bottom: 20px;
+  padding-top: 5px;
+}
+
+#mynetwork {
+   opacity: 0.0;
+   width: 600px;
+   height: 300px;
+   border: 1px solid lightgray;
+   transition: all 3s;
+   margin: 20px;
+}
+
+#ownNetwork{
+    display:none;
+}
+
+#error{
+    display:none;
+}
+
+#errorColorDiv{
+    display: block;
+    background-color:red;
+    padding-bottom: 5px;
+    padding-top: 5px;
+}
+
+
+
+.btn {
+  width: 100%;
+  background-color: #e74c3c;
+  position: relative;
+  display: block;
+  margin: 30px auto;
+  padding: 10px;
+  overflow: hidden;
+  border-width: 0;
+  outline: none;
+  border-radius: 0px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, .6);
+  color: #ecf0f1;
+  transition: background-color .3s;
+}
+
+.btn span {
+  display: block;
+}
+
+.btn:before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: block;
+  width: 0;
+  padding-top: 0;
+  border-radius: 100%;
+  background-color: rgba(236, 240, 241, .3);
+  transform: translate(-50%, -50%);
+}
+
+.btn:active:before {
+  width: 120%;
+  padding-top: 120%;
+  transition: width .2s ease-out, padding-top .2s ease-out;
+}
+
+.btn.red:hover, .btn.red:focus {
+  background-color: #c0392b;
+}
