@@ -70,12 +70,12 @@
 
         // array with nodes, queue:true znamena, ze se zmeny v poli neprovadi ihned, 
         //ale prevedou se hromadne pomoci flush(), to zvysuje vykon
-        var nodes = new vis.DataSet({ queue: true });
+        let nodes = new vis.DataSet({queue: true});
         // create an array with edges
-        var edges = new vis.DataSet({ queue: true });
-        var changes = [];   //list zmen, ktere je pak mozno vratit zpatky
-        var startDragX = -1; //pomocna proemna pro ulozeni pocatku tazeni nodu
-        var startDragY = -1;
+        let edges = new vis.DataSet({ queue: true });
+        let changes = [];   //list zmen, ktere je pak mozno vratit zpatky
+        let startDragX = -1; //pomocna proemna pro ulozeni pocatku tazeni nodu
+        let startDragY = -1;
 
         //asbstraktni trida slouzici jako interface pro dalsi tridy popisujici zmeny
         //predepisuje metodu doChange ktera povede zmenu a revertChange, ktera ji vrati
@@ -131,7 +131,7 @@
             if (changes.length > 0) {
                 let change = changes.pop();
                 change.revertChange();
-                if (changes.length == 0) {
+                if (changes.length === 0) {
                     backButton.style.display = "none";
                 }
             }
@@ -147,6 +147,7 @@
 
             //kontrola, zda je vnitrni struktura xmlData spravna - zda odpovida puvodnimu souboru graphml
             //pokud ne tak zoberaz error a prerus nacitani
+            //jedno rovnase proto, aby to pokrylo jak null tak undefined
             if (jsObj != null) {
                 if (jsObj[0] != null) {
                     if (jsObj[0].graphml != null) {
@@ -241,7 +242,7 @@
 
             //ulozeni souradnic pri zacatku tazeni
             network.addEventListener("dragStart", function (vizEvent) {
-                if (vizEvent.nodes.length == 1) {
+                if (vizEvent.nodes.length === 1) {
                     startDragX = nodes.get(vizEvent.nodes[0]).x;
                     startDragY = nodes.get(vizEvent.nodes[0]).y;
                 }
@@ -249,8 +250,8 @@
 
             //ulozeni MoveNodu se zaznamem co a odkud kam se tahlo pri konci tazeni
             network.addEventListener("dragEnd", function (vizEvent) {
-                if ((startDragX != -1 || startDragY != -1) && vizEvent.nodes.length == 1) {
-                    var node = nodes.get(vizEvent.nodes[0]);
+                if ((startDragX !== -1 || startDragY !== -1) && vizEvent.nodes.length === 1) {
+                    let node = nodes.get(vizEvent.nodes[0]);
                     let change = new MoveNode(node.id, startDragX, startDragY, vizEvent.pointer.canvas.x, vizEvent.pointer.canvas.y);
                     changes.push(change);
                     change.doChange();
@@ -316,14 +317,14 @@
 
         //po ybrani souboru nahrat jako text
         input.onchange = function (e) {
-            var file = input.files[0];
+            let file = input.files[0];
             if (file) {
                 getAsText(file);
             }
         }
 
         function getAsText(readFile) {
-            var reader = new FileReader();
+            let reader = new FileReader();
             // Read file into memory as UTF-8
             reader.readAsText(readFile, "UTF-8");
             // Handle success and errors
@@ -338,7 +339,7 @@
         }
 
         function errorHandler(evt) {
-            if (evt.target.error.name == "NotReadableError") {
+            if (evt.target.error.name === "NotReadableError") {
                 error.style.display = "block";
             }
         }
