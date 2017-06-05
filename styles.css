@@ -59,19 +59,28 @@ p:nth-of-type(1) {
 
 
 .btn {
-  width: 100%;
-  background-color: #e74c3c;
   position: relative;
   display: block;
-  margin: 30px auto;
+  margin: 20px auto;
   padding: 10px;
   overflow: hidden;
   border-width: 0;
   outline: none;
   border-radius: 0px;
   box-shadow: 0 1px 4px rgba(0, 0, 0, .6);
-  color: #ecf0f1;
   transition: background-color .3s;
+}
+
+.btn.red{
+      width: 100%;
+      background-color: #e74c3c;
+      color: #ecf0f1;
+}
+
+.btn.blue{
+      width: 600px;
+      background-color: #42d9f4;
+      display: none;
 }
 
 .btn span {
@@ -99,4 +108,8 @@ p:nth-of-type(1) {
 
 .btn.red:hover, .btn.red:focus {
   background-color: #c0392b;
+}
+
+.btn.blue:hover, .btn.blue:focus {
+  background-color: #42bcf4;
 }
