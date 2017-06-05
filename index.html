@@ -241,13 +241,15 @@
 
             //ulozeni souradnic pri zacatku tazeni
             network.addEventListener("dragStart", function (vizEvent) {
-                startDragX = nodes.get(vizEvent.nodes[0]).x;
-                startDragY = nodes.get(vizEvent.nodes[0]).y;
+                if (vizEvent.nodes.length == 1) {
+                    startDragX = nodes.get(vizEvent.nodes[0]).x;
+                    startDragY = nodes.get(vizEvent.nodes[0]).y;
+                }
             });
 
             //ulozeni MoveNodu se zaznamem co a odkud kam se tahlo pri konci tazeni
             network.addEventListener("dragEnd", function (vizEvent) {
-                if (startDragX != -1 || startDragY != -1) {
+                if ((startDragX != -1 || startDragY != -1) && vizEvent.nodes.length == 1) {
                     var node = nodes.get(vizEvent.nodes[0]);
                     let change = new MoveNode(node.id, startDragX, startDragY, vizEvent.pointer.canvas.x, vizEvent.pointer.canvas.y);
                     changes.push(change);
