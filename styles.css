@@ -12,6 +12,10 @@ p:nth-of-type(1) {
     font-weight: bold;
 }
 
+#container {
+ text-align: center;
+}
+
 #text{
     background-color:aquamarine;
     margin-top: 0px;
@@ -33,6 +37,8 @@ p:nth-of-type(1) {
    border: 0px solid lightgray;
    transition: all 3s;
    margin: 20px;
+   margin-right: auto;
+   margin-left: auto;
 }
 
 #ownNetwork{
